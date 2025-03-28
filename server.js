@@ -21,20 +21,18 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(helmet());
-
 app.options("*", cors(corsOptions));
-
 app.use(express.json());
 
 initializeDatabase();
 
+// Marshrutlar
 app.use("/auth", authRoutes);
 app.use("/portfolio", portfolioRoutes);
-app.use("/add-coin", portfolioRoutes);
-app.use("/remove-coin", portfolioRoutes);
 
-const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`HTTP Server http://0.0.0.0:${PORT} da ishlamoqda`);
+const port = process.env.PORT || PORT; // Render PORT ni ishlatish uchun
+const server = app.listen(port, "0.0.0.0", () => {
+  console.log(`HTTP Server http://0.0.0.0:${port} da ishlamoqda`);
 });
 
 setupWebSocket(server);
