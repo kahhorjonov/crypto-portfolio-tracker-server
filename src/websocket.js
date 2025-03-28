@@ -2,7 +2,26 @@ const WebSocket = require("ws");
 const { COIN_PAIRS, INITIAL_PRICES } = require("./config");
 
 const setupWebSocket = (server) => {
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({
+    server,
+    verifyClient: (info, done) => {
+      const origin = info.req.headers.origin;
+      const allowedOrigins = [
+        "https://crypto-portfolio-tracker-client.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:3001",
+      ];
+      if (allowedOrigins.includes(origin)) {
+        done(true);
+      } else {
+        console.log(
+          `WebSocket ulanishi rad etildi: Noto‘g‘ri origin ${origin}`
+        );
+        done(false, 403, "CORS error: Origin not allowed");
+      }
+    },
+  });
+
   let prices = { ...INITIAL_PRICES };
 
   const connectToBinanceWebSocket = () => {

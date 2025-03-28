@@ -5,6 +5,7 @@ const { initializeDatabase } = require("./src/db");
 const setupWebSocket = require("./src/websocket");
 const authRoutes = require("./src/routes/auth");
 const portfolioRoutes = require("./src/routes/portfolio");
+const helmet = require("helmet");
 
 const app = express();
 
@@ -20,6 +21,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(helmet());
 
 app.options("*", cors(corsOptions));
 
