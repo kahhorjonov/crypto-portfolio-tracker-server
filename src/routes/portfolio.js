@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const { db } = require("../db");
 
 const router = express.Router();
@@ -6,6 +7,7 @@ const router = express.Router();
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
+
   if (!token) return res.status(401).json({ error: "Токен отсутствует" });
 
   jwt.verify(token, "secret_key", (err, user) => {

@@ -9,21 +9,14 @@ const helmet = require("helmet");
 
 const app = express();
 
-// const corsOptions = {
-//   origin: [
-//     "https://crypto-portfolio-tracker-client.vercel.app",
-//     "http://localhost:3000",
-//     "http://localhost:3001",
-//   ],
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-// };
-
 const corsOptions = {
-  origin: "*", // Allow all origins
+  origin: [
+    "https://crypto-portfolio-tracker-client.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  // Note: Remove 'credentials: true' if using '*', see below
 };
 
 app.use(cors(corsOptions));
@@ -35,16 +28,13 @@ app.use(express.json());
 
 initializeDatabase();
 
-app.use("/login", authRoutes);
-app.use("/register", authRoutes);
+app.use("/auth", authRoutes);
 app.use("/portfolio", portfolioRoutes);
 app.use("/add-coin", portfolioRoutes);
 app.use("/remove-coin", portfolioRoutes);
 
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`HTTP Server http://0.0.0.0:${PORT} da ishlamoqda`);
-  console.log("Listening on port:", server.address().port);
-  console.log("Address:", server.address().address);
 });
 
 setupWebSocket(server);

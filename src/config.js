@@ -16,6 +16,7 @@ module.exports = {
     "kaitousdt",
     "berausdt",
   ],
+  
   INITIAL_PRICES: {
     BTC: 0,
     ETH: 0,
