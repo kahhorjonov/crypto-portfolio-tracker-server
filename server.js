@@ -8,22 +8,33 @@ const portfolioRoutes = require("./src/routes/portfolio");
 
 const app = express();
 
-app.use(express.json());
-app.use(cors());
+const corsOptions = {
+  origin: [
+    "https://crypto-portfolio-tracker-client.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
 
-// Ma’lumotbazani ishga tushirish
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
+
+app.use(express.json());
+
 initializeDatabase();
 
-// Marshrutlar
 app.use("/login", authRoutes);
 app.use("/register", authRoutes);
 app.use("/portfolio", portfolioRoutes);
 app.use("/add-coin", portfolioRoutes);
 app.use("/remove-coin", portfolioRoutes);
 
-const server = app.listen(PORT, "localhost", () => {
-  console.log(`HTTP Server http://localhost:${PORT} da ishlamoqda`);
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`HTTP Server http://0.0.0.0:${PORT} da ishlamoqda`);
 });
 
-// WebSocket ni sozlash
 setupWebSocket(server);
