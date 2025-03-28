@@ -1,5 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../config");
 const { db } = require("../db");
 
 const router = express.Router();
@@ -10,7 +11,7 @@ const authenticateToken = (req, res, next) => {
 
   if (!token) return res.status(401).json({ error: "Токен отсутствует" });
 
-  jwt.verify(token, "secret_key", (err, user) => {
+  jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: "Недействительный токен" });
     req.user = user;
     next();
@@ -47,7 +48,22 @@ router.get("/", authenticateToken, (req, res) => {
   );
 });
 
-router.post("/:coin", authenticateToken, (req, res) => {
+// Statik marshrutni dinamik marshrutdan oldin aniqlaymiz
+router.post("/add-coin", authenticateToken, (req, res) => {
+  const { symbol } = req.body;
+  const userId = req.user.id;
+  db.run(
+    `INSERT OR IGNORE INTO coins (user_id, symbol) VALUES (?, ?)`,
+    [userId, symbol.toUpperCase()],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: `${symbol} добавлена` });
+    }
+  );
+});
+
+// Tranzaksiya qo‘shish uchun yo‘lni aniqroq qilamiz
+router.post("/transaction/:coin", authenticateToken, (req, res) => {
   const { coin } = req.params;
   const { type, quantity, price } = req.body;
   const userId = req.user.id;
@@ -76,7 +92,8 @@ router.post("/:coin", authenticateToken, (req, res) => {
   );
 });
 
-router.put("/:coin/:id", authenticateToken, (req, res) => {
+// Shu tarzda boshqa tranzaksiya marshrutlarini ham o‘zgartiramiz
+router.put("/transaction/:coin/:id", authenticateToken, (req, res) => {
   const { coin, id } = req.params;
   const { type, quantity, price } = req.body;
   const userId = req.user.id;
@@ -98,7 +115,7 @@ router.put("/:coin/:id", authenticateToken, (req, res) => {
   );
 });
 
-router.delete("/:coin/:id", authenticateToken, (req, res) => {
+router.delete("/transaction/:coin/:id", authenticateToken, (req, res) => {
   const { coin, id } = req.params;
   const userId = req.user.id;
   db.get(
@@ -115,19 +132,6 @@ router.delete("/:coin/:id", authenticateToken, (req, res) => {
           res.json({ message: "Транзакция удалена" });
         }
       );
-    }
-  );
-});
-
-router.post("/add-coin", authenticateToken, (req, res) => {
-  const { symbol } = req.body;
-  const userId = req.user.id;
-  db.run(
-    `INSERT OR IGNORE INTO coins (user_id, symbol) VALUES (?, ?)`,
-    [userId, symbol.toUpperCase()],
-    (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: `${symbol} добавлена` });
     }
   );
 });
