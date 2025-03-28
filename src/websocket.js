@@ -13,6 +13,11 @@ const setupWebSocket = (server) => {
 
     ws.on("open", () => console.log("Binance WebSocket ulandi"));
 
+    ws.on("ping", (data) => {
+      console.log("Ping received, sending pong...");
+      ws.pong(data);
+    });
+
     ws.on("message", (data) => {
       const message = JSON.parse(data);
       const ticker = message.data;
@@ -28,12 +33,29 @@ const setupWebSocket = (server) => {
       }
     });
 
-    ws.on("error", (error) =>
-      console.error("WebSocket xatosi:", error.message)
-    );
+    let retryCount = 0;
+    const maxRetries = 5;
+    const baseDelay = 1000;
+
+    ws.on("error", (error) => {
+      console.error("WebSocket xatosi:", error.message);
+    });
+
     ws.on("close", () => {
-      console.log("Binance WebSocket uzildi, qayta ulanmoqda...");
-      setTimeout(connectToBinanceWebSocket, 1000);
+      if (retryCount < maxRetries) {
+        const delay = baseDelay * Math.pow(2, retryCount);
+        console.log(
+          `Binance WebSocket uzildi, ${delay}ms dan keyin qayta ulanmoqda...`
+        );
+        setTimeout(() => {
+          retryCount++;
+          connectToBinanceWebSocket();
+        }, delay);
+      } else {
+        console.error(
+          "Maksimal qayta ulanish urinishlari tugadi. Iltimos, tarmoqni tekshiring."
+        );
+      }
     });
   };
 
