@@ -41,7 +41,7 @@ app.use("/portfolio", portfolioRoutes);
 app.use("/add-coin", portfolioRoutes);
 app.use("/remove-coin", portfolioRoutes);
 
-const server = app.listen(port, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`HTTP Server http://0.0.0.0:${port} da ishlamoqda`);
   console.log("Listening on port:", server.address().port);
   console.log("Address:", server.address().address);
